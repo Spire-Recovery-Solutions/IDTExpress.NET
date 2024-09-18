@@ -213,31 +213,34 @@ public class ErrorDetail
     }
 
     /// <summary>
-/// Represents the response from the Browse Available Numbers endpoint.
-/// </summary>
-public class BrowseAvailableNumbersResponse
-{
-    /// <summary>
-    /// List of available DID numbers and their corresponding SKUs.
+    /// Represents the response from the Browse Available Numbers endpoint.
     /// </summary>
-    public List<AvailableNumber> Numbers { get; set; }
-}
-
-/// <summary>
-/// Represents an available DID number and its SKU.
-/// </summary>
-public class AvailableNumber
-{
-    /// <summary>
-    /// A DID number available for purchase.
-    /// </summary>
-    public string Number { get; set; }
+    public class BrowseAvailableNumbersResponse
+    {
+        /// <summary>
+        /// List of available DID numbers and their corresponding SKUs.
+        /// </summary>
+        [JsonPropertyName("numbers")]
+        public List<AvailableNumber> Numbers { get; set; }
+    }
 
     /// <summary>
-    /// The SKU to use when ordering this DID number.
+    /// Represents an available DID number and its SKU.
     /// </summary>
-    public string Sku { get; set; }
-}
+    public class AvailableNumber
+    {
+        /// <summary>
+        /// A DID number available for purchase.
+        /// </summary>
+        [JsonPropertyName("number")]
+        public string Number { get; set; }
+
+        /// <summary>
+        /// The SKU to use when ordering this DID number.
+        /// </summary>
+        [JsonPropertyName("sku")]
+        public string Sku { get; set; }
+    }
 
 /// <summary>
 /// Represents the request body for creating an order.

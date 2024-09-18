@@ -147,7 +147,7 @@ namespace IDTExpress.NET
         {
             try
             {
-                string didGroupId = "example-did-group-id"; // Replace with a valid DID group ID
+                string didGroupId = "3054"; // Replace with a valid DID group ID
                 if (string.IsNullOrWhiteSpace(didGroupId))
                 {
                     Console.WriteLine("Invalid DID group ID.");
