@@ -8,7 +8,7 @@ namespace IDTExpress.NET
         public static async Task Main(string[] args)
         {
             // API key and secret should be securely stored and fetched.
-             string apiKey = "test";
+            string apiKey = "test";
             string apiSecret = "Test";
 
             // Check if API key and secret are provided

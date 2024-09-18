@@ -3,11 +3,20 @@ using System.Text.Json.Serialization;
 
 namespace IDTExpress.NET.Models.Responses
 {
+    /// <summary>
+    /// Represents a response containing a list of orders and associated metadata.
+    /// </summary>
     public class OrdersResponse
     {
+        /// <summary>
+        /// Gets or sets the list of orders included in the response.
+        /// </summary>
         [JsonPropertyName("orders")]
         public List<Order> Orders { get; set; }
 
+        /// <summary>
+        /// Gets or sets metadata about the pagination of the response.
+        /// </summary>
         [JsonPropertyName("meta")]
         public Meta Meta { get; set; }
     }
