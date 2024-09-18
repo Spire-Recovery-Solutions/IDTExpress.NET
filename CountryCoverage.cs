@@ -1,4 +1,5 @@
 ﻿using System.Text.Json.Serialization;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 public class CountryCoverageResponse
 {
@@ -266,6 +267,15 @@ public class OrderItem
     public List<string> DidSkus { get; set; }
 }
 
+public class OrdersResponse
+{
+    [JsonPropertyName("orders")]
+    public List<Order> Orders { get; set; }
+
+    [JsonPropertyName("meta")]
+    public Meta Meta { get; set; }
+}
+
 /// <summary>
 /// Represents the response from creating an order.
 /// </summary>
@@ -305,7 +315,7 @@ public class Order
     /// The status of the order.
     /// </summary>
     [JsonPropertyName("status")]
-    public string Status { get; set; }
+    public OrderItemStatus Status { get; set; }
 
     /// <summary>
     /// Object representing the quantity of what was ordered.
@@ -353,7 +363,7 @@ public class OrderItemResponse
     /// The status of this order item.
     /// </summary>
     [JsonPropertyName("status")]
-    public string Status { get; set; }
+    public OrderItemStatus Status { get; set; }
 
     /// <summary>
     /// The type of order item.
@@ -431,6 +441,12 @@ public class Region
 
 public class Meta
 {
+    [JsonPropertyName("page")]
+    public int? Page { get; set; }
+
+    [JsonPropertyName("page_size")]
+    public int? PageSize { get; set; }
+
     [JsonPropertyName("total")]
     public int Total { get; set; }
 }
@@ -453,3 +469,62 @@ public class OrderedNumber
     [JsonPropertyName("sku")]
     public string Sku { get; set; }
 }
+
+
+public class NumberResponse
+{
+    [JsonPropertyName("numbers")]
+    public List<Number> Numbers { get; set; }
+
+    [JsonPropertyName("meta")]
+    public Meta Meta { get; set; }
+}
+
+public class Number
+{
+    [JsonPropertyName("number")]
+    public string NumberValue { get; set; }
+
+    [JsonPropertyName("status")]
+    public string Status { get; set; }
+
+    [JsonPropertyName("added_at")]
+    public DateTime AddedAt { get; set; }
+
+    [JsonPropertyName("removed_at")]
+    public DateTime? RemovedAt { get; set; }
+
+    [JsonPropertyName("did_group")]
+    public DidGroup DidGroup { get; set; }
+}
+
+public class DeleteNumberResponse
+{
+    [JsonPropertyName("number")]
+    public string Number { get; set; }
+
+    [JsonPropertyName("status")]
+    public string Status { get; set; }
+}
+
+
+[JsonConverter(typeof(JsonStringEnumConverter<OrderItemStatus>))]
+public enum OrderItemStatus
+{   
+    Created,
+    Processing,
+    Preview,
+    Received,
+    Shipped, 
+    Complete,
+    FulfilledComplete,
+    PartiallyFulfilledComplete,
+    Backordered,
+    BackorderCanceled,
+    PartiallyFulfilledBackordered,
+    PartiallyFulfilledBackorderCanceled,
+    CanceledInsufficientFunds,
+    CanceledInsufficientInventory,
+    PartiallyFulfilledInsufficientFunds
+}
+

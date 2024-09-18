@@ -126,8 +126,40 @@ public class IdtExpressApiClient
     }
 
     public async Task<OrderResponse> GetOrderAsync(string orderId)
+    {
+        var endpoint = $"dids/orders/{orderId}";
+        return await SendRequestAsync<object, OrderResponse>(HttpMethod.Get, endpoint);
+    }
+
+    public async Task<OrdersResponse> GetOrdersAsync(int page = 1, int pageSize = 10, string? filterByStatus = null)
+    {
+        var queryParams = new List<string>
+    {
+        $"page={page}",
+        $"page_size={pageSize}"
+    };
+
+        if (!string.IsNullOrEmpty(filterByStatus))
         {
-            var endpoint = $"dids/orders/{orderId}";
-            return await SendRequestAsync<object, OrderResponse>(HttpMethod.Get, endpoint);
+            queryParams.Add($"filter_by_status={filterByStatus}");
         }
+
+        var endpoint = $"dids/orders?{string.Join("&", queryParams)}";
+
+        // Call the SendRequestAsync method to perform the GET request
+        return await SendRequestAsync<object, OrdersResponse>(HttpMethod.Get, endpoint);
+    }
+
+    public async Task<NumberResponse> GetNumbersAsync(int page = 1, int pageSize = 10)
+    {
+        var endpoint = $"dids/numbers?page={page}&page_size={pageSize}";
+        return await SendRequestAsync<object, NumberResponse>(HttpMethod.Get, endpoint);
+    }
+
+    public async Task<DeleteNumberResponse> DeleteNumberAsync(string number)
+    {
+        var endpoint = $"dids/numbers/{number}";
+        return await SendRequestAsync<object, DeleteNumberResponse>(HttpMethod.Delete, endpoint);
+    }
+
 }

@@ -19,7 +19,7 @@ namespace IDTExpress.NET
 
             var regions = await GetRegions(client);
 
-            // Example 2: Get DID Groups
+            //// Example 2: Get DID Groups
             await GetDidGroups(client, regions);
 
             await BrowseAvailableNumbers(client);
@@ -29,6 +29,14 @@ namespace IDTExpress.NET
             if (!string.IsNullOrEmpty(orderId))
             {
                 await GetOrder(client, orderId);
+            }
+            await GetOrders(client);
+
+            var number = await GetNumbers(client);
+
+            if (!string.IsNullOrEmpty(number))
+            {
+                await DeleteNumber(client, number);
             }
         }
 
@@ -258,6 +266,102 @@ namespace IDTExpress.NET
             catch (IdtExpressApiException ex)
             {
                 Console.WriteLine($"Error fetching order details: {ex.Message}");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Unexpected error: {ex.Message}");
+            }
+        }
+        private static async Task GetOrders(IdtExpressApiClient client)
+        {
+            try
+            {
+                Console.WriteLine("Fetching orders...");
+
+                var ordersResponse = await client.GetOrdersAsync(page: 1, pageSize: 10);
+
+                if (ordersResponse?.Orders != null && ordersResponse.Orders.Any())
+                {
+                    Console.WriteLine($"Fetched {ordersResponse.Orders.Count} orders.");
+                    foreach (var order in ordersResponse.Orders)
+                    {
+                        Console.WriteLine($"Order ID: {order.Id}");
+                        Console.WriteLine($"Status: {order.Status}");
+                        Console.WriteLine($"Total Quantity: {order.Ordered.Quantity}");
+                        Console.WriteLine($"Created At: {order.CreatedAt}");
+                        Console.WriteLine($"Fulfilled Quantity: {order.Fulfilled.Quantity}");
+
+                        Console.WriteLine();
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("No orders found.");
+                }
+            }
+            catch (IdtExpressApiException ex)
+            {
+                Console.WriteLine($"Error fetching orders: {ex.Message}");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Unexpected error: {ex.Message}");
+            }
+        }
+
+        private static async Task<string?> GetNumbers(IdtExpressApiClient client, int page = 1, int pageSize = 10)
+        {
+            try
+            {
+                Console.WriteLine($"Fetching numbers - Page: {page}, Page Size: {pageSize}...");
+
+                var numberResponse = await client.GetNumbersAsync(page, pageSize);
+
+                if (numberResponse?.Numbers != null && numberResponse.Numbers.Any())
+                {
+                    var numberToDelete = numberResponse.Numbers.First().NumberValue;
+
+                    Console.WriteLine($"Number to delete: {numberToDelete}");
+                    
+                    return numberToDelete;
+                }
+                else
+                {
+                    Console.WriteLine("No numbers found.");
+                }
+            }
+            catch (IdtExpressApiException ex)
+            {
+                Console.WriteLine($"Error fetching numbers: {ex.Message}");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Unexpected error: {ex.Message}");
+            }
+
+            return null;
+        }
+
+       private static async Task DeleteNumber(IdtExpressApiClient client, string number)
+        {
+            try
+            {
+                Console.WriteLine($"Deleting number: {number}...");
+
+                var deleteResponse = await client.DeleteNumberAsync(number);
+
+                if (deleteResponse != null)
+                {
+                    Console.WriteLine($"Number: {deleteResponse.Number} has been {deleteResponse.Status}.");
+                }
+                else
+                {
+                    Console.WriteLine("Failed to delete the number, no response received.");
+                }
+            }
+            catch (IdtExpressApiException ex)
+            {
+                Console.WriteLine($"Error deleting number: {ex.Message}");
             }
             catch (Exception ex)
             {
