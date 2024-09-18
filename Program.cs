@@ -15,7 +15,7 @@ namespace IDTExpress.NET
 
             var client = new IdtExpressApiClient(apiKey, apiSecret);
 
-            var countries =await GetCountryCoverage(client);
+            var countries = await GetCountryCoverage(client);
 
             var regions = await GetRegions(client);
 
@@ -24,7 +24,12 @@ namespace IDTExpress.NET
 
             await BrowseAvailableNumbers(client);
 
-            // await CreateOrder(client);
+            var orderId = await CreateOrder(client);
+
+            if (!string.IsNullOrEmpty(orderId))
+            {
+                await GetOrder(client, orderId);
+            }
         }
 
         private static async Task<CountryCoverage[]?> GetCountryCoverage(IdtExpressApiClient client)
@@ -179,45 +184,85 @@ namespace IDTExpress.NET
             }
         }
 
-        // private static async Task CreateOrder(IdtExpressApiClient client)
-        // {
-        //     try
-        //     {
-        //         var createOrderRequest = new CreateOrderRequest
-        //         {
-        //             OrderItems = new[]
-        //             {
-        //         new OrderItem { Sku = "example-sku", Quantity = 1 }
-        //     }
-        //         };
-        //
-        //         if (createOrderRequest.Items == null || !createOrderRequest.Items.Any())
-        //         {
-        //             Console.WriteLine("No items to create an order.");
-        //             return;
-        //         }
-        //
-        //         Console.WriteLine("Creating an order...");
-        //         var createOrderResponse = await client.CreateOrderAsync(createOrderRequest);
-        //
-        //         if (createOrderResponse != null)
-        //         {
-        //             Console.WriteLine($"Order ID: {createOrderResponse.OrderId}, Status: {createOrderResponse.Status}");
-        //         }
-        //         else
-        //         {
-        //             Console.WriteLine("Order creation failed, no response received.");
-        //         }
-        //     }
-        //     catch (IdtExpressApiException ex)
-        //     {
-        //         Console.WriteLine($"Error creating order: {ex.Message}");
-        //     }
-        //     catch (Exception ex)
-        //     {
-        //         Console.WriteLine($"Unexpected error: {ex.Message}");
-        //     }
-        // }
+        private static async Task<string?> CreateOrder(IdtExpressApiClient client)
+        {
+            try
+            {
+                var createOrderRequest = new CreateOrderRequest
+                {
+                    OrderItems = new List<OrderItem>
+            {
+                new OrderItem
+                {
+                    DidGroupId = 3054,
+                    Quantity = 1,
+                    DidSkus = new List<string> { "example-sku" }
+                }
+            }
+                };
 
+                if (createOrderRequest.OrderItems == null || !createOrderRequest.OrderItems.Any())
+                {
+                    Console.WriteLine("No items to create an order.");
+                    return null;
+                }
+
+                Console.WriteLine("Creating an order...");
+                var createOrderResponse = await client.CreateOrderAsync(createOrderRequest);
+
+                if (createOrderResponse != null)
+                {
+                    var orderId = createOrderResponse.Order.Id;
+                    Console.WriteLine($"Order created successfully. Order ID: {orderId}, Status: {createOrderResponse.Order.Status}");
+                    return orderId;
+                }
+                else
+                {
+                    Console.WriteLine("Order creation failed, no response received.");
+                    return null;
+                }
+            }
+            catch (IdtExpressApiException ex)
+            {
+                Console.WriteLine($"Error creating order: {ex.Message}");
+                return null;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Unexpected error: {ex.Message}");
+                return null;
+            }
+        }
+
+        private static async Task GetOrder(IdtExpressApiClient client, string orderId)
+        {
+            try
+            {
+                Console.WriteLine($"Fetching details for order ID: {orderId}...");
+
+                var orderResponse = await client.GetOrderAsync(orderId);
+
+                if (orderResponse?.Order != null)
+                {
+                    var order = orderResponse.Order;
+                    Console.WriteLine($"Order ID: {order.Id}");
+                    Console.WriteLine($"Status: {order.Status}");
+                    Console.WriteLine($"Total Quantity: {order.Ordered.Quantity}");
+                    Console.WriteLine($"Created At: {order.CreatedAt}");
+                }
+                else
+                {
+                    Console.WriteLine("Order details not found.");
+                }
+            }
+            catch (IdtExpressApiException ex)
+            {
+                Console.WriteLine($"Error fetching order details: {ex.Message}");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Unexpected error: {ex.Message}");
+            }
+        }
     }
 }

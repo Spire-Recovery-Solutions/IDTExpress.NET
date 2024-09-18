@@ -119,9 +119,15 @@ public class IdtExpressApiClient
     /// </summary>
     /// <param name="request">The order request details.</param>
     /// <returns>A CreateOrderResponse containing the order details.</returns>
-    public async Task<CreateOrderResponse> CreateOrderAsync(CreateOrderRequest request)
+    public async Task<OrderResponse> CreateOrderAsync(CreateOrderRequest request)
     {
         const string endpoint = "dids/orders";
-        return await SendRequestAsync<CreateOrderRequest, CreateOrderResponse>(HttpMethod.Post, endpoint, request);
+        return await SendRequestAsync<CreateOrderRequest, OrderResponse>(HttpMethod.Post, endpoint, request);
     }
+
+    public async Task<OrderResponse> GetOrderAsync(string orderId)
+        {
+            var endpoint = $"dids/orders/{orderId}";
+            return await SendRequestAsync<object, OrderResponse>(HttpMethod.Get, endpoint);
+        }
 }

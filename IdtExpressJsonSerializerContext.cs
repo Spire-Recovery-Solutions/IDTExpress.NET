@@ -8,5 +8,5 @@ namespace IDTExpress.NET;
 [JsonSerializable(typeof(DidGroupsResponse))]
 [JsonSerializable(typeof(BrowseAvailableNumbersResponse))]
 [JsonSerializable(typeof(CreateOrderRequest))]
-[JsonSerializable(typeof(CreateOrderResponse))]
+[JsonSerializable(typeof(OrderResponse))]
 internal partial class IdtExpressJsonSerializerContext : JsonSerializerContext { }
