@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using IDTExpress.NET.Models.Responses;
+using System.Net;
 
 namespace IDTExpress.NET;
 
