@@ -1,4 +1,4 @@
-﻿namespace IDTExpress.NET
+namespace IDTExpress.NET
 {
     public class Program
     {
@@ -15,19 +15,19 @@
 
             var client = new IdtExpressApiClient(apiKey, apiSecret);
 
-            await GetCountryCoverage(client);
+            var countries =await GetCountryCoverage(client);
 
-            await GetRegions(client);
+            var regions = await GetRegions(client);
 
             // Example 2: Get DID Groups
-            await GetDidGroups(client);
+            await GetDidGroups(client, regions);
 
-            //await BrowseAvailableNumbers(client);
+            await BrowseAvailableNumbers(client);
 
-            //await CreateOrder(client);
+            // await CreateOrder(client);
         }
 
-        private static async Task GetCountryCoverage(IdtExpressApiClient client)
+        private static async Task<CountryCoverage[]?> GetCountryCoverage(IdtExpressApiClient client)
         {
             try
             {
@@ -45,6 +45,8 @@
                 {
                     Console.WriteLine("No countries found.");
                 }
+
+                return countries;
             }
             catch (IdtExpressApiException ex)
             {
@@ -54,50 +56,55 @@
             {
                 Console.WriteLine($"Unexpected error: {ex.Message}");
             }
+
+            return null;
         }
 
-        private static async Task GetDidGroups(IdtExpressApiClient client)
+        private static async Task GetDidGroups(IdtExpressApiClient client, List<Region>? regions)
         {
-            try
+            foreach (var region in regions)
             {
-                string countryIsoCode = "PL";
-
-                Console.WriteLine($"Fetching DID groups for {countryIsoCode}...");
-
-                var didGroupsResponse = await client.GetDidGroupsAsync(countryIsoCode);
-
-                if (didGroupsResponse?.DidGroups != null && didGroupsResponse.DidGroups.Any())
+                try
                 {
-                    Console.WriteLine($"Fetched {didGroupsResponse.DidGroups.Count} DID groups.");
-                    foreach (var group in didGroupsResponse.DidGroups)
+
+                    Console.WriteLine($"Fetching DID groups for '{region.Name}' - '{region.Code}'...");
+
+                    var didGroupsResponse = await client.GetDidGroupsAsync(region.Code.Split('-')[0], region.Code);
+
+                    if (didGroupsResponse?.DidGroups != null && didGroupsResponse.DidGroups.Any())
                     {
-                        Console.WriteLine($"DID Group: {group.Name}, ID: {group.Id}");
-                        Console.WriteLine($"  Area Code: {group.AreaCode}");
-                        Console.WriteLine($"  NXX: {group.Nxx}");
-                        Console.WriteLine($"  Toll-Free: {group.TollFree}");
-                        Console.WriteLine($"  Supports Browse: {group.SupportsBrowse}");
-                        Console.WriteLine($"  Quantity: {group.Quantity}");
-                        Console.WriteLine($"  Fees - Setup: {group.Fees.SetupFee}, Monthly: {group.Fees.MonthlyFee}, Per Minute: {group.Fees.PerMinuteRate}");
-                        Console.WriteLine($"  Country: {group.Country.Name} ({group.Country.Iso})");
-                        Console.WriteLine($"  Region: {group.Region?.Name} ({group.Region?.Code})");
+                        Console.WriteLine($"Fetched {didGroupsResponse.DidGroups.Count} DID groups.");
+                        foreach (var group in didGroupsResponse.DidGroups)
+                        {
+                            Console.WriteLine($"DID Group: {group.Name}, ID: {group.Id}");
+                            Console.WriteLine($"  Area Code: {group.AreaCode}");
+                            Console.WriteLine($"  NXX: {group.Nxx}");
+                            Console.WriteLine($"  Toll-Free: {group.TollFree}");
+                            Console.WriteLine($"  Supports Browse: {group.SupportsBrowse}");
+                            Console.WriteLine($"  Quantity: {group.Quantity}");
+                            Console.WriteLine(
+                                $"  Fees - Setup: {group.Fees.SetupFee}, Monthly: {group.Fees.MonthlyFee}, Per Minute: {group.Fees.PerMinuteRate}");
+                            Console.WriteLine($"  Country: {group.Country.Name} ({group.Country.Iso})");
+                            Console.WriteLine($"  Region: {group.Region?.Name} ({group.Region?.Code})");
+                        }
+                    }
+                    else
+                    {
+                        Console.WriteLine("No DID groups found.");
                     }
                 }
-                else
+                catch (IdtExpressApiException ex)
                 {
-                    Console.WriteLine("No DID groups found.");
+                    Console.WriteLine($"Error fetching DID groups: {ex.Message}");
                 }
-            }
-            catch (IdtExpressApiException ex)
-            {
-                Console.WriteLine($"Error fetching DID groups: {ex.Message}");
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Unexpected error: {ex.Message}");
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Unexpected error: {ex.Message}");
+                }
             }
         }
 
-        private static async Task GetRegions(IdtExpressApiClient client)
+        private static async Task<List<Region>?> GetRegions(IdtExpressApiClient client)
         {
             try
             {
@@ -120,6 +127,8 @@
                 {
                     Console.WriteLine("No regions found.");
                 }
+
+                return regionsResponse?.Regions;
             }
             catch (IdtExpressApiException ex)
             {
@@ -129,84 +138,86 @@
             {
                 Console.WriteLine($"Unexpected error: {ex.Message}");
             }
+
+            return null;
         }
 
 
-        //private static async Task BrowseAvailableNumbers(IdtExpressApiClient client)
-        //{
-        //    try
-        //    {
-        //        string didGroupId = "example-did-group-id"; // Replace with a valid DID group ID
-        //        if (string.IsNullOrWhiteSpace(didGroupId))
-        //        {
-        //            Console.WriteLine("Invalid DID group ID.");
-        //            return;
-        //        }
+        private static async Task BrowseAvailableNumbers(IdtExpressApiClient client)
+        {
+            try
+            {
+                string didGroupId = "example-did-group-id"; // Replace with a valid DID group ID
+                if (string.IsNullOrWhiteSpace(didGroupId))
+                {
+                    Console.WriteLine("Invalid DID group ID.");
+                    return;
+                }
 
-        //        Console.WriteLine($"Browsing available numbers for DID group ID: {didGroupId}...");
+                Console.WriteLine($"Browsing available numbers for DID group ID: {didGroupId}...");
 
-        //        var browseResponse = await client.BrowseAvailableNumbersAsync(didGroupId);
-        //        if (browseResponse?.AvailableNumbers != null && browseResponse.AvailableNumbers.Any())
-        //        {
-        //            foreach (var number in browseResponse.AvailableNumbers)
-        //            {
-        //                Console.WriteLine($"Number: {number.Number}, SKU: {number.Sku}");
-        //            }
-        //        }
-        //        else
-        //        {
-        //            Console.WriteLine("No available numbers found.");
-        //        }
-        //    }
-        //    catch (IdtExpressApiException ex)
-        //    {
-        //        Console.WriteLine($"Error browsing available numbers: {ex.Message}");
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        Console.WriteLine($"Unexpected error: {ex.Message}");
-        //    }
-        //}
+                var browseResponse = await client.BrowseAvailableNumbersAsync(didGroupId);
+                if (browseResponse?.Numbers != null && browseResponse.Numbers.Any())
+                {
+                    foreach (var number in browseResponse.Numbers)
+                    {
+                        Console.WriteLine($"Number: {number.Number}, SKU: {number.Sku}");
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("No available numbers found.");
+                }
+            }
+            catch (IdtExpressApiException ex)
+            {
+                Console.WriteLine($"Error browsing available numbers: {ex.Message}");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Unexpected error: {ex.Message}");
+            }
+        }
 
-        //private static async Task CreateOrder(IdtExpressApiClient client)
-        //{
-        //    try
-        //    {
-        //        var createOrderRequest = new CreateOrderRequest
-        //        {
-        //            Items = new[]
-        //            {
-        //        new OrderItem { Sku = "example-sku", Quantity = 1 }
-        //    }
-        //        };
-
-        //        if (createOrderRequest.Items == null || !createOrderRequest.Items.Any())
-        //        {
-        //            Console.WriteLine("No items to create an order.");
-        //            return;
-        //        }
-
-        //        Console.WriteLine("Creating an order...");
-        //        var createOrderResponse = await client.CreateOrderAsync(createOrderRequest);
-
-        //        if (createOrderResponse != null)
-        //        {
-        //            Console.WriteLine($"Order ID: {createOrderResponse.OrderId}, Status: {createOrderResponse.Status}");
-        //        }
-        //        else
-        //        {
-        //            Console.WriteLine("Order creation failed, no response received.");
-        //        }
-        //    }
-        //    catch (IdtExpressApiException ex)
-        //    {
-        //        Console.WriteLine($"Error creating order: {ex.Message}");
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        Console.WriteLine($"Unexpected error: {ex.Message}");
-        //    }
-        //}
+        // private static async Task CreateOrder(IdtExpressApiClient client)
+        // {
+        //     try
+        //     {
+        //         var createOrderRequest = new CreateOrderRequest
+        //         {
+        //             OrderItems = new[]
+        //             {
+        //         new OrderItem { Sku = "example-sku", Quantity = 1 }
+        //     }
+        //         };
+        //
+        //         if (createOrderRequest.Items == null || !createOrderRequest.Items.Any())
+        //         {
+        //             Console.WriteLine("No items to create an order.");
+        //             return;
+        //         }
+        //
+        //         Console.WriteLine("Creating an order...");
+        //         var createOrderResponse = await client.CreateOrderAsync(createOrderRequest);
+        //
+        //         if (createOrderResponse != null)
+        //         {
+        //             Console.WriteLine($"Order ID: {createOrderResponse.OrderId}, Status: {createOrderResponse.Status}");
+        //         }
+        //         else
+        //         {
+        //             Console.WriteLine("Order creation failed, no response received.");
+        //         }
+        //     }
+        //     catch (IdtExpressApiException ex)
+        //     {
+        //         Console.WriteLine($"Error creating order: {ex.Message}");
+        //     }
+        //     catch (Exception ex)
+        //     {
+        //         Console.WriteLine($"Unexpected error: {ex.Message}");
+        //     }
+        // }
 
     }
 }

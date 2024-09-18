@@ -95,7 +95,7 @@ public class IdtExpressApiClient
         }
         if (tollFree.HasValue)
         {
-            queryParams.Add($"toll_free={tollFree.Value.ToString().ToLower()}");
+            // queryParams.Add($"toll_free={tollFree.Value.ToString().ToLower()}");
         }
 
         var endpoint = $"dids/coverage/did_groups?{string.Join("&", queryParams)}";
