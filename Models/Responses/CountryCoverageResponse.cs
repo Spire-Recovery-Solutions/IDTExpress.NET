@@ -12,6 +12,12 @@ namespace IDTExpress.NET.Models.Responses
         /// </summary>
         [JsonPropertyName("countries")]
         public List<CountryCoverage> Countries { get; set; }
+
+        /// <summary>
+        /// Metadata about the response.
+        /// </summary>
+        [JsonPropertyName("meta")]
+        public Meta Meta { get; set; }
     }
 
     /// <summary>

@@ -6,7 +6,7 @@ namespace IDTExpress.NET.Models.Responses
     /// <summary>
     /// Represents a response containing a list of regions and associated metadata.
     /// </summary>
-    public class RegionsResponse
+    public class RegionsResponse : BaseResponse
     {
         /// <summary>
         /// Gets or sets the list of regions included in the response.
@@ -14,12 +14,6 @@ namespace IDTExpress.NET.Models.Responses
         /// </summary>
         [JsonPropertyName("regions")]
         public List<Region>? Regions { get; set; }
-
-        /// <summary>
-        /// Gets or sets metadata about the pagination of the response.
-        /// </summary>
-        [JsonPropertyName("meta")]
-        public Meta Meta { get; set; }
     }
 
     /// <summary>

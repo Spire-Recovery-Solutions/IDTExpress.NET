@@ -6,38 +6,26 @@ namespace IDTExpress.NET.Models.Responses
     /// <summary>
     /// Represents a response containing a list of orders and associated metadata.
     /// </summary>
-    public class OrdersResponse
+    public class OrdersResponse : BaseResponse
     {
         /// <summary>
         /// Gets or sets the list of orders included in the response.
         /// </summary>
         [JsonPropertyName("orders")]
         public List<Order> Orders { get; set; }
-
-        /// <summary>
-        /// Gets or sets metadata about the pagination of the response.
-        /// </summary>
-        [JsonPropertyName("meta")]
-        public Meta Meta { get; set; }
     }
 
     /// <summary>
     /// Represents the response from creating an order.
     /// </summary>
 
-    public class OrderResponse
+    public class OrderResponse : BaseResponse
     {
         /// <summary>
         /// The created order details.
         /// </summary>
         [JsonPropertyName("order")]
         public Order Order { get; set; }
-
-        /// <summary>
-        /// Additional metadata about the response.
-        /// </summary>
-        [JsonPropertyName("meta")]
-        public Meta Meta { get; set; }
     }
     /// <summary>
     /// Represents an order.

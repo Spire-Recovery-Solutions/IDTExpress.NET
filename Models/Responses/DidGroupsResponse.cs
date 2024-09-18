@@ -5,19 +5,13 @@ namespace IDTExpress.NET.Models.Responses
     /// <summary>
     /// Represents the response from the Get DID Groups endpoint.
     /// </summary>
-    public class DidGroupsResponse
+    public class DidGroupsResponse : BaseResponse
     {
         /// <summary>
         /// List of DID Groups returned by the API.
         /// </summary>
         [JsonPropertyName("did_groups")]
         public List<DidGroup> DidGroups { get; set; }
-
-        /// <summary>
-        /// Metadata about the response.
-        /// </summary>
-        [JsonPropertyName("meta")]
-        public Meta Meta { get; set; }
     }
 
     /// <summary>

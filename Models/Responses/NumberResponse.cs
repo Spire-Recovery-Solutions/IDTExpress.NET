@@ -5,19 +5,13 @@ namespace IDTExpress.NET.Models.Responses
     /// <summary>
     /// Represents a response containing a list of phone numbers and associated metadata.
     /// </summary>
-    public class NumberResponse
+    public class NumberResponse : BaseResponse
     {
         /// <summary>
         /// Gets or sets the list of phone numbers included in the response.
         /// </summary>
         [JsonPropertyName("numbers")]
         public List<Number> Numbers { get; set; }
-
-        /// <summary>
-        /// Gets or sets metadata about the pagination of the response.
-        /// </summary>
-        [JsonPropertyName("meta")]
-        public Meta Meta { get; set; }
     }
 
     /// <summary>
