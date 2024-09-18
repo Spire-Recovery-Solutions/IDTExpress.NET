@@ -1,7 +1,6 @@
 ﻿using System.Net;
 using System.Text;
 using System.Text.Json;
-using System.Text.Json.Serialization.Metadata;
 
 namespace IDTExpress.NET;
 
@@ -9,7 +8,7 @@ public class IdtExpressApiClient
 {
     private readonly HttpClient _httpClient;
 
-    public IdtExpressApiClient(string apiKey, string apiSecret, string baseUrl = "https://api.idtexpress.com/v1")
+    public IdtExpressApiClient(string apiKey, string apiSecret, string baseUrl = "https://sandbox-api.idtexpress.com/v1/")
     {
         _httpClient = new HttpClient { BaseAddress = new Uri(baseUrl) };
         _httpClient.DefaultRequestHeaders.Add("x-api-key", apiKey);
@@ -17,26 +16,15 @@ public class IdtExpressApiClient
     }
 
     private async Task<TResponse> SendRequestAsync<TRequest, TResponse>(HttpMethod method, string endpoint,
-        TRequest? request = default)
+    TRequest? request = default)
     {
-        var requestInfo =
-            IdtExpressJsonSerializerContext.Default.GetTypeInfo(typeof(TRequest)) as JsonTypeInfo<TRequest>;
-        var responseInfo =
-            IdtExpressJsonSerializerContext.Default.GetTypeInfo(typeof(ApiResponse<TResponse>)) as
-                JsonTypeInfo<ApiResponse<TResponse>>;
-
-        if (requestInfo == null || responseInfo == null)
-        {
-            throw new InvalidOperationException(
-                $"Type {typeof(TRequest)} or {typeof(ApiResponse<TResponse>)} is not registered in IdtExpressJsonSerializerContext.");
-        }
-
         using var content = request != null
-            ? new StringContent(JsonSerializer.Serialize(request, requestInfo), Encoding.UTF8, "application/json")
+            ? new StringContent(JsonSerializer.Serialize(request), Encoding.UTF8, "application/json")
             : null;
 
         try
         {
+
             HttpResponseMessage response = method switch
             {
                 { } m when m == HttpMethod.Get => await _httpClient.GetAsync(endpoint),
@@ -50,24 +38,24 @@ public class IdtExpressApiClient
 
             if (response.IsSuccessStatusCode)
             {
-                var apiResponse = JsonSerializer.Deserialize(responseContent, responseInfo);
-                if (apiResponse == null || apiResponse.Data == null)
+                var apiResponse = JsonSerializer.Deserialize<TResponse>(responseContent);
+
+                if (apiResponse == null)
                 {
                     throw new IdtExpressApiException("Failed to deserialize the response or response data is null.");
                 }
 
-                return apiResponse.Data;
+                return apiResponse;
             }
 
-            var errorResponse =
-                JsonSerializer.Deserialize(responseContent, IdtExpressJsonSerializerContext.Default.ErrorResponse);
+            var errorResponse = JsonSerializer.Deserialize<ErrorResponse>(responseContent);
 
             throw errorResponse != null
                 ? new IdtExpressApiException(errorResponse, response.StatusCode)
                 : new IdtExpressApiException(response.StatusCode.ToString(), responseContent ?? "No response content",
                     response.StatusCode);
         }
-        catch (IdtExpressApiException)
+        catch (IdtExpressApiException ex)
         {
             throw;
         }
@@ -78,9 +66,17 @@ public class IdtExpressApiClient
         }
     }
 
+
     public async Task<CountryCoverage[]> GetCountryCoverageAsync()
     {
-        return await SendRequestAsync<object, CountryCoverage[]>(HttpMethod.Get, "dids/coverage/countries");
+        var response = await SendRequestAsync<object, CountryCoverageResponse>(HttpMethod.Get, "dids/coverage/countries");
+        return response.Countries.ToArray();
+    }
+
+    public async Task<RegionsResponse> GetRegionsAsync(string countryIso)
+    {
+        var endpoint = $"dids/coverage/countries/{countryIso}/regions";
+        return await SendRequestAsync<object, RegionsResponse>(HttpMethod.Get, endpoint);
     }
 
     /// <summary>
@@ -105,8 +101,8 @@ public class IdtExpressApiClient
         var endpoint = $"dids/coverage/did_groups?{string.Join("&", queryParams)}";
         return await SendRequestAsync<object, DidGroupsResponse>(HttpMethod.Get, endpoint);
     }
-    
-    
+
+
     /// <summary>
     /// Browse available DID numbers for a specific DID Group.
     /// </summary>
@@ -117,7 +113,7 @@ public class IdtExpressApiClient
         var endpoint = $"dids/coverage/did_groups/{didGroupId}/browse_numbers";
         return await SendRequestAsync<object, BrowseAvailableNumbersResponse>(HttpMethod.Get, endpoint);
     }
-    
+
     /// <summary>
     /// Creates an order for phone numbers.
     /// </summary>
