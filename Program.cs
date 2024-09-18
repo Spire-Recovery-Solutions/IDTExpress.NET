@@ -9,7 +9,7 @@
 
             if (string.IsNullOrEmpty(apiKey) || string.IsNullOrEmpty(apiSecret))
             {
-                Console.WriteLine("API key and secret are not set. Please check environment variables.");
+                Console.WriteLine("API key and secret are not set.");
                 return;
             }
 
