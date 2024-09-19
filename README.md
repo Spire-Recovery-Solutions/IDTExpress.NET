@@ -1,4 +1,4 @@
-﻿# IDT Express .NET SDK
+﻿﻿# IDT Express .NET SDK
 
 <p align="center">
   <a href="https://www.idtexpress.com/"><img src="https://docs.idtexpress.com/images/theme/logo-idtpro-aggregator-glow-94464ec3.png" alt="IDT Express Logo" width="200"/></a>
@@ -39,13 +39,17 @@ using IDTExpress.NET;
 // Initialize API client
 string apiKey = "YOUR_API_KEY";
 string apiSecret = "YOUR_API_SECRET";
-var client = new IdtExpressApiClient(apiKey, apiSecret);
+string baseUrl = "https://sandbox-api.idtexpress.com/v1/";
 
+// For production use:
+// string baseUrl = "https://api.idtexpress.com/v1/";
+
+var client = new IdtExpressApiClient(apiKey, apiSecret, baseUrl);
 // Fetch country coverage
 var countries = await client.GetCountryCoverageAsync();
 
 // Fetch regions for a specific country
-var regions = await client.GetRegionsAsync(" "your-country-code",");
+var regions = await client.GetRegionsAsync("your-country-code");
 
 // Browse available numbers for a specific DID group
 var numbers = await client.BrowseAvailableNumbersAsync("DID_GROUP_ID");
@@ -88,7 +92,7 @@ We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.
 
 ## 📄 License
 
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+This project is licensed under the GPL-3.0 license.
 
 ## 🤝 Support
 
