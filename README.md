@@ -57,7 +57,7 @@ var createOrderRequest = new CreateOrderRequest
     {
         new OrderItem
         {
-            DidGroupId = did-groupi-id,
+            DidGroupId = did-group-id,
             Quantity = 1
         }
     }
