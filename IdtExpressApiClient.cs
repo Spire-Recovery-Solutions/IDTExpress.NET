@@ -3,6 +3,7 @@ using IDTExpress.NET.Models.Responses;
 using System.Net;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Serialization.Metadata;
 
 namespace IDTExpress.NET;
 
@@ -36,10 +37,22 @@ public class IdtExpressApiClient
     /// <param name="request">The request object to send (optional).</param>
     /// <returns>The response from the API.</returns>
     private async Task<TResponse> SendRequestAsync<TRequest, TResponse>(HttpMethod method, string endpoint,
-        TRequest? request = default)
+       TRequest? request = default)
     {
+        var requestInfo =
+            IdtExpressJsonSerializerContext.Default.GetTypeInfo(typeof(TRequest)) as JsonTypeInfo<TRequest>;
+        var responseInfo =
+            IdtExpressJsonSerializerContext.Default.GetTypeInfo(typeof(TResponse)) as
+                JsonTypeInfo<TResponse>;
+
+        if (requestInfo == null || responseInfo == null)
+        {
+            throw new InvalidOperationException(
+                $"Type {typeof(TRequest)} or {typeof(TResponse)} is not registered in IdtExpressJsonSerializerContext.");
+        }
+
         using var content = request != null
-            ? new StringContent(JsonSerializer.Serialize(request), Encoding.UTF8, "application/json")
+            ? new StringContent(JsonSerializer.Serialize(request, requestInfo), Encoding.UTF8, "application/json")
             : null;
 
         try
@@ -57,9 +70,8 @@ public class IdtExpressApiClient
 
             if (response.IsSuccessStatusCode)
             {
-                var apiResponse = JsonSerializer.Deserialize<TResponse>(responseContent);
-
-                if (apiResponse == null)
+                var apiResponse = JsonSerializer.Deserialize(responseContent, responseInfo);
+                if (apiResponse == null || apiResponse == null)
                 {
                     throw new IdtExpressApiException("Failed to deserialize the response or response data is null.");
                 }
@@ -67,7 +79,8 @@ public class IdtExpressApiClient
                 return apiResponse;
             }
 
-            var errorResponse = JsonSerializer.Deserialize<ErrorResponse>(responseContent);
+            var errorResponse =
+                JsonSerializer.Deserialize(responseContent, IdtExpressJsonSerializerContext.Default.ErrorResponse);
 
             throw errorResponse != null
                 ? new IdtExpressApiException(errorResponse, response.StatusCode)
