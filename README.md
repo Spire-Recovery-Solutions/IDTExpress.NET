@@ -23,7 +23,7 @@ The IDT Express .NET SDK simplifies interaction with IDT's VoIP services, making
 
 ## 📦 Installation
 
-Install the Solutions By Text SDK via NuGet:
+Install the IDT Express SDK via NuGet:
 
     dotnet add package IDTExpress.NET
 
@@ -50,6 +50,9 @@ var countries = await client.GetCountryCoverageAsync();
 
 // Fetch regions for a specific country
 var regions = await client.GetRegionsAsync("your-country-code");
+
+// Get available DID groups
+var didGroups = await client.GetDidGroupsAsync("your-country-code", regionCode: "your-region-code", tollFree: false);
 
 // Browse available numbers for a specific DID group
 var numbers = await client.BrowseAvailableNumbersAsync("DID_GROUP_ID");
