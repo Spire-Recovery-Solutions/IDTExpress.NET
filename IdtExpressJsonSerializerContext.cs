@@ -29,6 +29,7 @@ namespace IDTExpress.NET;
 [JsonSerializable(typeof(DidGroupRegion))]
 [JsonSerializable(typeof(DidGroupFees))]
 [JsonSerializable(typeof(Region))]
+[JsonSerializable(typeof(RegionsResponse))]
 [JsonSerializable(typeof(Order))]
 [JsonSerializable(typeof(OrderItemResponse))]
 [JsonSerializable(typeof(OrderItemDetail))]
